@@ -1,0 +1,6 @@
+[package]
+name = "coding-game"
+version = "0.1.0"
+authors = ["ilyavolkov <mormehtar@gmail.com>"]
+
+[dependencies]
