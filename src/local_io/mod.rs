@@ -1,5 +1,4 @@
 use std::io;
-use std::io::prelude::*;
 
 pub struct ReadBuffer {
     stream: Box<io::BufRead>,

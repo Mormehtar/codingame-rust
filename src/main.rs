@@ -1,6 +1,9 @@
-mod lib;
+mod local_io;
+mod utils;
+mod types;
+
 
 fn main() {
-    let m = lib::types::Player::new(1);
+    let m = types::Player::new(1);
     println!("Hello player {}!", m.id);
 }
