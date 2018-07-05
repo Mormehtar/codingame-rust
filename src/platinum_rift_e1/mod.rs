@@ -1,13 +1,14 @@
-use std::io;
-use std::collections::HashMap;
+//use std::io;
 
 mod types {
+    use std::cmp::PartialEq;
 
     const MAX_LINKS: usize = 6;
     const NEUTRAL_ID: i32 = -1;
     const POD_COST: usize = 20;
 
-    struct Cell {
+    #[derive(Debug)]
+    pub struct Cell {
         id: usize,
         platinum: usize,
         links: Vec<usize>,
@@ -16,7 +17,7 @@ mod types {
     }
 
     impl Cell {
-        fn new(id: usize, platinum: usize) -> Cell {
+        pub fn new(id: usize, platinum: usize) -> Cell {
             Cell {
                 id,
                 platinum,
@@ -26,47 +27,89 @@ mod types {
             }
         }
 
-        fn link(&self, id: usize) {
-            self.links.insert(id);
+        pub fn link(&mut self, id: &usize) {
+            self.links.push(id.clone());
         }
 
-        fn finalize(&self) {
+        pub fn finalize(&mut self) {
             self.links.shrink_to_fit();
         }
     }
 
-    struct Map {
-        cells: HashMap<usize, Cell>,
+    impl PartialEq for Cell {
+        fn eq(&self, other: &Cell) -> bool {
+            return self.id == other.id;
+        }
+    }
+
+    #[derive(Debug)]
+    pub struct Map {
+        cells: Vec<Cell>,
     }
 
     impl Map {
-        fn new(size: usize) -> Map {
-            {
-                cells: HashMap::with_capacity(size)
+        pub fn new(size: usize) -> Map {
+            Map {
+                cells: Vec::with_capacity(size)
             }
         }
 
-        fn add_cell(&self, cell: Cell) {
+        pub fn add_cell(&mut self, cell: Cell) {
             self.cells.insert(cell.id, cell);
         }
 
-        fn link_cells(&self, cell_id_1: usize, cell_id_2: usize) {
-            self[cell_id_1].link(cell_id_2);
-            self[cell_id_2].link(cell_id_1);
+        pub fn link_cells(&mut self, cell_id_1: usize, cell_id_2: usize) {
+            self.cells[cell_id_1].link(&cell_id_2);
+            self.cells[cell_id_2].link(&cell_id_1);
         }
     }
 
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        #[test]
+        fn it_creates_cells() {
+            let cell = Cell::new(1, 0);
+            assert_eq!(cell.id, 1);
+            assert_eq!(cell.platinum, 0);
+            assert_eq!(cell.owner, NEUTRAL_ID);
+            assert_eq!(cell.pods, (0,0,0,0));
+            assert_eq!(cell.links, Vec::new());
+        }
+
+        #[test]
+        fn it_creates_map() {
+            let map = Map::new(6);
+            assert_eq!(map.cells, Vec::new());
+        }
+
+        #[test]
+        fn it_adds_cells() {
+            let mut map = Map::new(1);
+            map.add_cell(Cell::new(0, 0));
+            assert_eq!(map.cells[0].id, 0);
+            assert_eq!(map.cells[0].platinum, 0);
+        }
+
+        #[test]
+        fn it_links_cells() {
+            let mut map = Map::new(2);
+            map.add_cell(Cell::new(0, 0));
+            map.add_cell(Cell::new(1, 0));
+            map.link_cells(0, 1);
+            assert_eq!(map.cells[0].links, vec![1]);
+            assert_eq!(map.cells[1].links, vec![0]);
+        }
+    }
 }
 
 
+/*
 macro_rules! parse_input {
     ($x:expr, $t:ident) => ($x.trim().parse::<$t>().unwrap())
 }
 
-/**
- * Auto-generated code below aims at helping you parse
- * the standard input according to the problem statement.
- **/
 fn main() {
     let mut input_line = String::new();
     io::stdin().read_line(&mut input_line).unwrap();
@@ -116,3 +159,4 @@ fn main() {
         println!("1 73");
     }
 }
+*/
