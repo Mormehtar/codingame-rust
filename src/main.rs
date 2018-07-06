@@ -4,6 +4,6 @@ mod types;
 
 
 fn main() {
-    let m = types::Player::new(1);
+    let m = types::player::Player::new(1);
     println!("Hello player {}!", m.id);
 }
