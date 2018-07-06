@@ -1,3 +1,5 @@
+use std::cmp::PartialEq;
+
 #[derive(Debug)]
 pub struct Player {
     pub id: usize,
@@ -14,6 +16,12 @@ impl Player {
             cells: 0,
             pods: 0,
         }
+    }
+}
+
+impl PartialEq for Player {
+    fn eq(&self, other: &Player) -> bool {
+        return self.id == other.id;
     }
 }
 

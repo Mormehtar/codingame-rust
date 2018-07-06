@@ -1,16 +1,70 @@
-//use std::io;
+use types::board::Board;
+use types::cell::Cell;
+use local_io::ReadBuffer;
 
-//mod local_io;
-//mod types;
+pub fn init_board(reader: &mut ReadBuffer) -> Board {
+    let (player_count, my_id, zone_count, link_count) = read_header(reader);
+    let mut board = Board::new(zone_count, player_count, my_id);
+    fill_cells(reader, &mut board, zone_count);
+    fill_links(reader, &mut board, link_count);
+    return board;
+}
 
-//pub fn main_fn(input: Box<io::BufRead>, output: Box<Write>, comment: Box<Write>) {
-//    let mut reader = local_io::ReadBuffer::new(input);
-//
-//    let first_line = reader.read_line();
-//    let player_count: usize = first_line[0].parse().unwarp(); // the amount of players (2 to 4)
-//    let my_id: usize = first_line[1].parse().unwarp(); // my player ID (0, 1, 2 or 3)
-//    let zone_count: usize = first_line[2].parse().unwarp(); // the amount of zones on the map
-//    let link_count: usize = first_line[3].parse().unwarp(); // the amount of links between all zones
-//}
+fn read_header(reader: &mut ReadBuffer) -> (usize, usize, usize, usize) {
+    let first_line = reader.read_line();
+    let player_count = first_line[0].parse().unwrap(); // the amount of players (2 to 4)
+    let my_id = first_line[1].parse().unwrap(); // my player ID (0, 1, 2 or 3)
+    let zone_count = first_line[2].parse().unwrap(); // the amount of zones on the map
+    let link_count = first_line[3].parse().unwrap(); // the amount of links between all zones
+    (player_count, my_id, zone_count, link_count)
+}
 
-//pub fn init_map(reader: &mut local_io::ReadBuffer) -> types::Map {}
+fn fill_cells(reader: &mut ReadBuffer, board: &mut Board, n_cells: usize) {
+    for _i in 0..n_cells {
+        let data = reader.read_line();
+        let id = data[0].parse().unwrap();
+        let platinum = data[1].parse().unwrap();
+        board.add_cell(Cell::new(id, platinum));
+    }
+}
+
+fn fill_links(reader: &mut ReadBuffer, board: &mut Board, n_links: usize) {
+    for _i in 0..n_links {
+        let data = reader.read_line();
+        let id1 = data[0].parse().unwrap();
+        let id2 = data[1].parse().unwrap();
+        board.link_cells(id1, id2);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Cursor;
+    use types::player::Player;
+
+    const TEST_INPUT: &str =
+"2 0 3 2
+0 0
+1 0
+2 2
+0 1
+1 2";
+
+    #[test]
+    fn it_parses_input_correctly() {
+        let mut buffer = ReadBuffer::new(Box::new(Cursor::new(TEST_INPUT)));
+        let board = init_board(&mut buffer);
+        assert_eq!(board.owner, 0);
+        assert_eq!(board.players, vec![Player::new(0), Player::new(1)]);
+        assert_eq!(board.cells[0].id, 0);
+        assert_eq!(board.cells[0].platinum, 0);
+        assert_eq!(board.cells[0].links, vec![1]);
+        assert_eq!(board.cells[1].id, 1);
+        assert_eq!(board.cells[1].platinum, 0);
+        assert_eq!(board.cells[1].links, vec![0, 2]);
+        assert_eq!(board.cells[2].id, 2);
+        assert_eq!(board.cells[2].platinum, 2);
+        assert_eq!(board.cells[2].links, vec![1]);
+    }
+}

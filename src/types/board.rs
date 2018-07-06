@@ -3,9 +3,9 @@ use types::player::Player;
 
 #[derive(Debug)]
 pub struct Board {
-    cells: Vec<Cell>,
-    players: Vec<Player>,
-    owner: usize,
+    pub cells: Vec<Cell>,
+    pub players: Vec<Player>,
+    pub owner: usize,
 }
 
 impl Board {
@@ -13,7 +13,7 @@ impl Board {
         if owner >= players_count {
             panic!("Owner id not in players!");
         }
-        let mut players = (0..players_count)
+        let players = (0..players_count)
             .map(|id| Player::new(id))
             .collect::<Vec<Player>>();
 
