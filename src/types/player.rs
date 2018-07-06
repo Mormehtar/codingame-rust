@@ -2,8 +2,7 @@ use std::cmp::PartialEq;
 
 #[derive(Debug)]
 pub struct Player {
-    pub id: usize,
-    pub platinum: usize,
+    pub id: i32,
     pub cells: usize,
     pub pods: usize,
 }
@@ -11,8 +10,7 @@ pub struct Player {
 impl Player {
     pub fn new(id: usize) -> Player {
         Player {
-            id,
-            platinum: 0,
+            id: id as i32,
             cells: 0,
             pods: 0,
         }
@@ -33,7 +31,6 @@ mod tests {
     fn it_creates_player() {
         let player = Player::new(1);
         assert_eq!(player.id, 1);
-        assert_eq!(player.platinum, 0);
         assert_eq!(player.cells, 0);
         assert_eq!(player.pods, 0);
     }

@@ -10,7 +10,7 @@ pub fn init_board(reader: &mut ReadBuffer) -> Board {
     return board;
 }
 
-fn read_header(reader: &mut ReadBuffer) -> (usize, usize, usize, usize) {
+fn read_header(reader: &mut ReadBuffer) -> (usize, i32, usize, usize) {
     let first_line = reader.read_line();
     let player_count = first_line[0].parse().unwrap(); // the amount of players (2 to 4)
     let my_id = first_line[1].parse().unwrap(); // my player ID (0, 1, 2 or 3)
@@ -37,34 +37,74 @@ fn fill_links(reader: &mut ReadBuffer, board: &mut Board, n_links: usize) {
     }
 }
 
+fn get_turn(reader: &mut ReadBuffer, board: &mut Board) {
+    {
+        let data = reader.read_line();
+        board.set_owner_platinum(data[0].parse().unwrap());
+    }
+    for _i in 0..board.get_size() {
+        let data = reader.read_line();
+        let zid = data[0].parse().unwrap();
+        let owner_id = data[1].parse().unwrap();
+        let pods = [
+            data[2].parse().unwrap(),
+            data[3].parse().unwrap(),
+            data[4].parse().unwrap(),
+            data[5].parse().unwrap(),
+        ];
+        board.set_cell(zid, owner_id, pods);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::io::Cursor;
     use types::player::Player;
 
-    const TEST_INPUT: &str =
+    #[test]
+    fn it_parses_input_correctly() {
+        const TEST_INPUT: &str =
 "2 0 3 2
 0 0
 1 0
 2 2
 0 1
 1 2";
-
-    #[test]
-    fn it_parses_input_correctly() {
         let mut buffer = ReadBuffer::new(Box::new(Cursor::new(TEST_INPUT)));
         let board = init_board(&mut buffer);
-        assert_eq!(board.owner, 0);
-        assert_eq!(board.players, vec![Player::new(0), Player::new(1)]);
-        assert_eq!(board.cells[0].id, 0);
-        assert_eq!(board.cells[0].platinum, 0);
-        assert_eq!(board.cells[0].links, vec![1]);
-        assert_eq!(board.cells[1].id, 1);
-        assert_eq!(board.cells[1].platinum, 0);
-        assert_eq!(board.cells[1].links, vec![0, 2]);
-        assert_eq!(board.cells[2].id, 2);
-        assert_eq!(board.cells[2].platinum, 2);
-        assert_eq!(board.cells[2].links, vec![1]);
+        assert_eq!(*board.get_owner(), 0 as i32);
+        assert_eq!(*board.get_player(0), Player::new(0));
+        assert_eq!(*board.get_player(1), Player::new(1));
+        let cell = board.get_cell(0);
+        assert_eq!(cell.platinum, 0);
+        assert_eq!(cell.links, vec![1]);
+        let cell = board.get_cell(1);
+        assert_eq!(cell.platinum, 0);
+        assert_eq!(cell.links, vec![0, 2]);
+        let cell = board.get_cell(2);
+        assert_eq!(cell.platinum, 2);
+        assert_eq!(cell.links, vec![1]);
+    }
+
+    #[test]
+    fn it_parses_turn_correctly() {
+        const TEST_INPUT: &str =
+"1 0 2 0
+0 0
+1 1
+10
+0 0 1 0 0 0
+1 -1 0 0 0 0";
+        let mut buffer = ReadBuffer::new(Box::new(Cursor::new(TEST_INPUT)));
+        let mut board = init_board(&mut buffer);
+        get_turn(&mut buffer, &mut board);
+        assert_eq!(*board.get_owner_platinum(), 10);
+        let cell = board.get_cell(0);
+        assert_eq!(cell.owner, 0);
+        assert_eq!(cell.pods, [1, 0, 0, 0]);
+        let cell = board.get_cell(1);
+        assert_eq!(cell.owner, -1);
+        assert_eq!(cell.pods, [0, 0, 0, 0]);
     }
 }
