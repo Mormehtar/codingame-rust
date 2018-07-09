@@ -37,7 +37,7 @@ fn fill_links(reader: &mut ReadBuffer, board: &mut Board, n_links: usize) {
     }
 }
 
-fn get_turn(reader: &mut ReadBuffer, board: &mut Board) {
+pub fn get_turn(reader: &mut ReadBuffer, board: &mut Board) {
     {
         let data = reader.read_line();
         board.set_owner_platinum(data[0].parse().unwrap());
