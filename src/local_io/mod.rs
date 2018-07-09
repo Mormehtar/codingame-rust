@@ -1,12 +1,12 @@
 use std::io;
 
-pub struct ReadBuffer {
-    stream: Box<io::BufRead>,
+pub struct ReadBuffer<'a> {
+    stream: Box<io::BufRead + 'a>,
     buffer: String,
 }
 
-impl ReadBuffer {
-    pub fn new(stream: Box<io::BufRead>) -> ReadBuffer {
+impl <'a>ReadBuffer<'a> {
+    pub fn new(stream: Box<io::BufRead + 'a>) -> ReadBuffer {
         ReadBuffer {
             stream,
             buffer: String::new(),

@@ -66,6 +66,10 @@ impl Board {
     pub fn get_player(&self, id: i32) -> &Player {
         &self.players[id as usize]
     }
+
+    pub fn finish_init(&mut self) {
+        self.cells.iter_mut().for_each(|cell| cell.finalize());
+    }
 }
 
 #[cfg(test)]
@@ -118,5 +122,13 @@ mod tests {
         let mut map = Board::new(2, 2, 0);
         map.set_owner_platinum(5);
         assert_eq!(*map.get_owner_platinum(), 5);
+    }
+
+    #[test]
+    fn it_finalizes_cells_correctly() {
+        let mut map = Board::new(1, 2, 0);
+        map.add_cell(Cell::new(0, 0));
+        map.finish_init();
+        assert_eq!(map.cells[0].links.capacity(), 0);
     }
 }
