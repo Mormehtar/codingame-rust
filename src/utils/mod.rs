@@ -7,6 +7,7 @@ pub fn init_board(reader: &mut ReadBuffer) -> Board {
     let mut board = Board::new(zone_count, player_count, my_id);
     fill_cells(reader, &mut board, zone_count);
     fill_links(reader, &mut board, link_count);
+    board.finish_init();
     return board;
 }
 
@@ -101,10 +102,10 @@ mod tests {
         get_turn(&mut buffer, &mut board);
         assert_eq!(*board.get_owner_platinum(), 10);
         let cell = board.get_cell(0);
-        assert_eq!(cell.owner, 0);
-        assert_eq!(cell.pods, [1, 0, 0, 0]);
+        assert_eq!(*cell.get_owner(), 0);
+        assert_eq!(*cell.get_pods(), [1, 0, 0, 0]);
         let cell = board.get_cell(1);
-        assert_eq!(cell.owner, -1);
-        assert_eq!(cell.pods, [0, 0, 0, 0]);
+        assert_eq!(*cell.get_owner(), -1);
+        assert_eq!(*cell.get_pods(), [0, 0, 0, 0]);
     }
 }

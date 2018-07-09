@@ -1,4 +1,4 @@
-use types::cell::Cell;
+use types::cell::{Cell, Pods};
 use types::player::Player;
 
 const START_PLATINUM: usize = 200;
@@ -41,10 +41,8 @@ impl Board {
         self.cells.len()
     }
 
-    pub fn set_cell(&mut self, id: usize, owner: i32, pods: [usize; 4]) {
-        let cell = &mut self.cells[id];
-        cell.owner = owner;
-        cell.pods = pods;
+    pub fn set_cell(&mut self, id: usize, owner: i32, pods: Pods) {
+        self.cells[id].update(owner, pods);
     }
 
     pub fn get_cell(&self, id: usize) -> &Cell {
@@ -95,8 +93,8 @@ mod tests {
         map.add_cell(Cell::new(0, 0));
         map.add_cell(Cell::new(1, 0));
         map.link_cells(0, 1);
-        assert_eq!(map.get_cell(0).links, vec![1]);
-        assert_eq!(map.get_cell(1).links, vec![0]);
+        assert_eq!(*map.get_cell(0).get_links(), vec![1]);
+        assert_eq!(*map.get_cell(1).get_links(), vec![0]);
     }
 
     #[test]
@@ -113,8 +111,8 @@ mod tests {
         map.add_cell(Cell::new(0, 0));
         map.add_cell(Cell::new(1, 0));
         map.set_cell(0, 1, [1, 1, 0, 0]);
-        assert_eq!(map.get_cell(0).owner, 1);
-        assert_eq!(map.get_cell(0).pods, [1, 1, 0, 0]);
+        assert_eq!(*map.get_cell(0).get_owner(), 1);
+        assert_eq!(*map.get_cell(0).get_pods(), [1, 1, 0, 0]);
     }
 
     #[test]
@@ -129,6 +127,6 @@ mod tests {
         let mut map = Board::new(1, 2, 0);
         map.add_cell(Cell::new(0, 0));
         map.finish_init();
-        assert_eq!(map.cells[0].links.capacity(), 0);
+        assert_eq!(map.get_cell(0).get_links().capacity(), 0);
     }
 }
