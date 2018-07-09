@@ -1,7 +1,4 @@
-use std::io;
-
 pub struct Commander {
-    stream: Box<io::Write>,
     moves: Vec<Vec<usize>>,
     new_pods: Vec<Vec<usize>>,
 }
@@ -24,19 +21,18 @@ fn build_command(commands: &Vec<Vec<usize>>) -> String {
 }
 
 impl Commander {
-    pub fn new(stream: Box<io::Write>) -> Commander {
+    pub fn new() -> Commander {
         Commander {
-            stream,
             moves: Vec::new(),
             new_pods: Vec::new(),
         }
     }
 
-    pub fn make_turn(&mut self) {
-        self.stream.write(build_command(&self.moves).as_bytes()).unwrap();
-        self.stream.write(build_command(&self.new_pods).as_bytes()).unwrap();
-        self.stream.flush().unwrap();
+    pub fn make_turn(&mut self) -> String {
+        let mut result = build_command(&self.moves);
+        result.push_str(&build_command(&self.new_pods));
         self.clean_up();
+        return result;
     }
 
     fn clean_up(&mut self) {
@@ -59,10 +55,51 @@ mod tests {
 
     #[test]
     fn it_waits_if_no_command() {
-        let stream = Box::new(io::Cursor::new(vec![]));
-        let mut commander = Commander::new(stream);
-        commander.make_turn();
-        let result = commander.stream.into_inner();
-        assert_eq!(String::from_utf8(result).unwrap(), "WAIT\nWAIT\n");
+        let mut commander = Commander::new();
+        let result = commander.make_turn();
+        assert_eq!(result, "WAIT\nWAIT\n");
     }
+
+    #[test]
+    fn it_makes_moves_correctly_if_no_new_pods() {
+        let mut commander = Commander::new();
+        commander.make_move(1, 0, 1);
+        commander.make_move(1, 1, 2);
+        let result = commander.make_turn();
+        assert_eq!(result, "1 0 1 1 1 2\nWAIT\n");
+    }
+
+    #[test]
+    fn it_buys_new_pods_correctly_if_no_moves() {
+        let mut commander = Commander::new();
+        commander.buy_pods(1, 0);
+        commander.buy_pods(1, 1);
+        let result = commander.make_turn();
+        assert_eq!(result, "WAIT\n1 0 1 1\n");
+    }
+
+    #[test]
+    fn it_allows_to_but_and_move() {
+        let mut commander = Commander::new();
+        commander.buy_pods(1, 0);
+        commander.buy_pods(1, 1);
+        commander.make_move(1, 0, 1);
+        commander.make_move(1, 1, 2);
+        let result = commander.make_turn();
+        assert_eq!(result, "1 0 1 1 1 2\n1 0 1 1\n");
+    }
+
+    #[test]
+    fn it_works_correctly_with_consqutive_turns() {
+        let mut commander = Commander::new();
+        commander.buy_pods(1, 0);
+        commander.make_move(1, 0, 1);
+        let result = commander.make_turn();
+        assert_eq!(result, "1 0 1\n1 0\n");
+        commander.buy_pods(1, 1);
+        commander.make_move(1, 1, 2);
+        let result = commander.make_turn();
+        assert_eq!(result, "1 1 2\n1 1\n");
+    }
+
 }
