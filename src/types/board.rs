@@ -134,7 +134,7 @@ mod tests {
         map.finish_init();
         assert_eq!(map.get_cell(0).get_links().capacity(), 1);
         assert_eq!(map.get_cell(1).get_links().capacity(), 2);
-        assert_eq!(map.get_cell(1).get_links(), vec![0, 2]);
+        assert_eq!(*map.get_cell(1).get_links(), vec![0, 2]);
         assert_eq!(map.get_cell(2).get_links().capacity(), 1);
     }
 }

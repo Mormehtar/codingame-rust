@@ -8,14 +8,15 @@ fn set_continent_mark(
     board: &Board,
     point: usize,
     value: usize,
-    mut map: &mut Vec<usize>,
+    map: &mut Vec<usize>,
 ) {
+    // TODO Try iterators again!
     map[point] = value;
-    board.get_cell(point).get_links().iter()
-        .filter(|&point| map[*point] == 0)
-        .for_each(|point| {
-            set_continent_mark(board, *point, value, map)
-        });
+    for link in &board.get_cell(point).links {
+        if map[*link] == 0 {
+            set_continent_mark(board, *link, value, map)
+        }
+    }
 }
 
 impl Continent {
@@ -33,14 +34,17 @@ impl Continent {
     fn build_continents(board: &Board) -> Vec<Continent> {
         let mut continent_number: usize = 0;
         let mut temp: Vec<usize> = (0..board.get_size()).map(|_| 0).collect();
-        (0..temp.len()).filter(|i| temp[*i] == 0).for_each(|i| {
-            continent_number += 1;
-            set_continent_mark(board, i, continent_number, &mut temp);
-        });
+        // TODO Try iterators again!
+        for i in 0..temp.len() {
+            if temp[i] == 0 {
+                continent_number += 1;
+                set_continent_mark(board, i, continent_number, &mut temp);
+            }
+        }
         let mut continents: Vec<Continent> = (0..continent_number)
             .map(|_| Continent::new()).collect();
         for i in 0..temp.len() {
-            continents[temp[i]].cells.push(i);
+            continents[temp[i] - 1].cells.push(i);
         }
         for i in 0..continents.len() {
             continents[i].finalize();
