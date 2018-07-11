@@ -26,14 +26,14 @@ fn set_continent_mark(
 
 impl Continent {
 
-    fn finalize(&mut self, board: &Board) {
+    pub fn finalize(&mut self, board: &Board) {
         self.cells.sort_unstable();
         for i in &self.cells {
             self.platinum += board.get_cell(*i).platinum;
         }
     }
 
-    fn collect_stats(&mut self, board: &Board) {
+    pub fn collect_stats(&mut self, board: &Board) {
         self.pods = [0, 0, 0, 0];
         self.owned_cells = [0, 0, 0, 0];
         for i in &self.cells {
@@ -49,7 +49,7 @@ impl Continent {
         }
     }
 
-    fn new() -> Continent {
+    pub fn new() -> Continent {
         Continent {
             cells: Vec::new(),
             platinum: 0,
@@ -58,7 +58,7 @@ impl Continent {
         }
     }
 
-    fn build_continents(board: &Board) -> Vec<Continent> {
+    pub fn build_continents(board: &Board) -> Vec<Continent> {
         let mut continent_number: usize = 0;
         let mut temp: Vec<usize> = (0..board.get_size()).map(|_| 0).collect();
         // TODO Try iterators again!

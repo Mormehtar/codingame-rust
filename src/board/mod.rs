@@ -75,6 +75,12 @@ impl Board {
 
     pub fn finish_init(&mut self) {
         self.cells.iter_mut().for_each(|cell| cell.finalize());
+        self.continents = Continent::build_continents(self);
+    }
+
+    pub fn finish_turn_update(&mut self) {
+        self.continents.iter_mut()
+            .for_each(|continent| continent.collect_stats(self));
     }
 }
 
@@ -144,5 +150,6 @@ mod tests {
         assert_eq!(map.get_cell(1).get_links().capacity(), 2);
         assert_eq!(*map.get_cell(1).get_links(), vec![0, 2]);
         assert_eq!(map.get_cell(2).get_links().capacity(), 1);
+        assert_eq!(map.continents.len(), 1);
     }
 }
