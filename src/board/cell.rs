@@ -1,7 +1,7 @@
 use std::cmp::PartialEq;
 
 const MAX_LINKS: usize = 6;
-const NEUTRAL_ID: i32 = -1;
+pub const NEUTRAL_ID: i32 = -1;
 const MAX_PLAYERS: usize = 4;
 
 pub type Pods = [usize; MAX_PLAYERS];

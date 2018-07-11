@@ -1,5 +1,4 @@
-use types::board::Board;
-use types::cell::Cell;
+use board::Board;
 use local_io::ReadBuffer;
 
 pub fn init_board(reader: &mut ReadBuffer) -> Board {
@@ -25,7 +24,7 @@ fn fill_cells(reader: &mut ReadBuffer, board: &mut Board, n_cells: usize) {
         let data = reader.read_line();
         let id = data[0].parse().unwrap();
         let platinum = data[1].parse().unwrap();
-        board.add_cell(Cell::new(id, platinum));
+        board.add_cell(id, platinum);
     }
 }
 
@@ -61,7 +60,7 @@ pub fn get_turn(reader: &mut ReadBuffer, board: &mut Board) {
 mod tests {
     use super::*;
     use std::io::Cursor;
-    use types::player::Player;
+    use board::player::Player;
 
     #[test]
     fn it_parses_input_correctly() {

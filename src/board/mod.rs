@@ -1,5 +1,11 @@
-use types::cell::{Cell, Pods};
-use types::player::Player;
+mod cell;
+mod continent;
+// TODO For tests. Cleanup.
+pub mod player;
+
+use board::cell::{Cell, Pods};
+use board::player::Player;
+use board::continent::Continent;
 
 const START_PLATINUM: usize = 200;
 
@@ -9,6 +15,7 @@ pub struct Board {
     players: Vec<Player>,
     owner: i32,
     owner_platinum: usize,
+    continents: Vec<Continent>,
 }
 
 impl Board {
@@ -25,11 +32,12 @@ impl Board {
             cells: Vec::with_capacity(size),
             players,
             owner_platinum: START_PLATINUM,
+            continents: Vec::new(),
         }
     }
 
-    pub fn add_cell(&mut self, cell: Cell) {
-        self.cells.insert(cell.id, cell);
+    pub fn add_cell(&mut self, id: usize, platinum: usize) {
+        self.cells.insert(id, Cell::new(id, platinum));
     }
 
     pub fn link_cells(&mut self, cell_id_1: usize, cell_id_2: usize) {
@@ -83,15 +91,15 @@ mod tests {
     #[test]
     fn it_adds_cells() {
         let mut map = Board::new(1, 1, 0);
-        map.add_cell(Cell::new(0, 0));
+        map.add_cell(0, 0);
         assert_eq!(map.get_cell(0).platinum, 0);
     }
 
     #[test]
     fn it_links_cells() {
         let mut map = Board::new(2, 1, 0);
-        map.add_cell(Cell::new(0, 0));
-        map.add_cell(Cell::new(1, 0));
+        map.add_cell(0, 0);
+        map.add_cell(1, 0);
         map.link_cells(0, 1);
         assert_eq!(*map.get_cell(0).get_links(), vec![1]);
         assert_eq!(*map.get_cell(1).get_links(), vec![0]);
@@ -100,16 +108,16 @@ mod tests {
     #[test]
     fn it_returns_size() {
         let mut map = Board::new(2, 1, 0);
-        map.add_cell(Cell::new(0, 0));
-        map.add_cell(Cell::new(1, 0));
+        map.add_cell(0, 0);
+        map.add_cell(1, 0);
         assert_eq!(map.get_size(), 2);
     }
 
     #[test]
     fn it_updates_cell() {
         let mut map = Board::new(2, 2, 0);
-        map.add_cell(Cell::new(0, 0));
-        map.add_cell(Cell::new(1, 0));
+        map.add_cell(0, 0);
+        map.add_cell(1, 0);
         map.set_cell(0, 1, [1, 1, 0, 0]);
         assert_eq!(*map.get_cell(0).get_owner(), 1);
         assert_eq!(*map.get_cell(0).get_pods(), [1, 1, 0, 0]);
@@ -126,9 +134,9 @@ mod tests {
     fn it_finalizes_cells_correctly() {
         // TODO Should be mocked accurately, it looks into cell implementation now.
         let mut map = Board::new(3, 2, 0);
-        map.add_cell(Cell::new(0, 0));
-        map.add_cell(Cell::new(1, 0));
-        map.add_cell(Cell::new(2, 0));
+        map.add_cell(0, 0);
+        map.add_cell(1, 0);
+        map.add_cell(2, 0);
         map.link_cells(2, 1);
         map.link_cells(1, 0);
         map.finish_init();
