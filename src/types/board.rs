@@ -124,9 +124,17 @@ mod tests {
 
     #[test]
     fn it_finalizes_cells_correctly() {
-        let mut map = Board::new(1, 2, 0);
+        // TODO Should be mocked accurately, it looks into cell implementation now.
+        let mut map = Board::new(3, 2, 0);
         map.add_cell(Cell::new(0, 0));
+        map.add_cell(Cell::new(1, 0));
+        map.add_cell(Cell::new(2, 0));
+        map.link_cells(2, 1);
+        map.link_cells(1, 0);
         map.finish_init();
-        assert_eq!(map.get_cell(0).get_links().capacity(), 0);
+        assert_eq!(map.get_cell(0).get_links().capacity(), 1);
+        assert_eq!(map.get_cell(1).get_links().capacity(), 2);
+        assert_eq!(map.get_cell(1).get_links(), vec![0, 2]);
+        assert_eq!(map.get_cell(2).get_links().capacity(), 1);
     }
 }

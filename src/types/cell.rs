@@ -49,6 +49,7 @@ impl Cell {
 
     pub fn finalize(&mut self) {
         self.links.shrink_to_fit();
+        self.links.sort_unstable();
     }
 }
 
@@ -100,5 +101,15 @@ mod tests {
         let mut cell = Cell::new(1, 0);
         cell.update(0, [1, 0, 0, 0]);
         assert_eq!(*cell.get_pods(), [1, 0, 0, 0]);
+    }
+
+    #[test]
+    fn it_finalizes() {
+        let mut cell = Cell::new(1, 0);
+        cell.link(&13);
+        cell.link(&1);
+        cell.finalize();
+        assert_eq!(cell.links, vec![1, 13]);
+        assert_eq!(cell.links.capacity(), 2);
     }
 }
