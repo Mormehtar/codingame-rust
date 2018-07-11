@@ -1,9 +1,9 @@
-mod cell;
 mod continent;
 // TODO For tests. Cleanup.
 pub mod player;
+pub mod cell;
 
-use board::cell::{Cell, Pods};
+use board::cell::{Cell, Owner, Pods};
 use board::player::Player;
 use board::continent::Continent;
 
@@ -13,14 +13,14 @@ const START_PLATINUM: usize = 200;
 pub struct Board {
     cells: Vec<Cell>,
     players: Vec<Player>,
-    owner: i32,
+    owner: usize,
     owner_platinum: usize,
     continents: Vec<Continent>,
 }
 
 impl Board {
-    pub fn new(size: usize, players_count: usize, owner: i32) -> Board {
-        if owner >= players_count as i32 {
+    pub fn new(size: usize, players_count: usize, owner: usize) -> Board {
+        if owner >= players_count {
             panic!("Owner id not in players!");
         }
         let players = (0..players_count)
@@ -65,7 +65,7 @@ impl Board {
         &self.owner_platinum
     }
 
-    pub fn get_owner(&self) -> &i32 {
+    pub fn get_owner(&self) -> &usize {
         &self.owner
     }
 
@@ -79,8 +79,9 @@ impl Board {
     }
 
     pub fn finish_turn_update(&mut self) {
-        self.continents.iter_mut()
-            .for_each(|continent| continent.collect_stats(self));
+//        for continent in self.continents.iter_mut() {
+//            continent.collect_stats(self);
+//        }
     }
 }
 
@@ -125,7 +126,7 @@ mod tests {
         map.add_cell(0, 0);
         map.add_cell(1, 0);
         map.set_cell(0, 1, [1, 1, 0, 0]);
-        assert_eq!(*map.get_cell(0).get_owner(), 1);
+        assert_eq!(*map.get_cell(0).get_owner(), Owner::Owned(1));
         assert_eq!(*map.get_cell(0).get_pods(), [1, 1, 0, 0]);
     }
 

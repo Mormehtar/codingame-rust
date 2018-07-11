@@ -1,5 +1,5 @@
 use board::Board;
-use board::cell::NEUTRAL_ID;
+use board::cell::Owner;
 
 #[derive(Debug)]
 pub struct Continent {
@@ -42,10 +42,10 @@ impl Continent {
             for id in 0..pods.len() {
                 self.pods[id] += pods[id];
             }
-            let &owner = cell.get_owner();
-            if owner != NEUTRAL_ID {
-                self.owned_cells[owner as usize] += 1;
-            }
+            match cell.get_owner() {
+                Owner::Owned(id) => self.owned_cells[*id] += 1,
+                _ => (),
+            };
         }
     }
 
@@ -83,6 +83,7 @@ impl Continent {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use board::cell::NEUTRAL_ID;
 
     #[test]
     fn it_should_correctly_parse_board_on_continents() {

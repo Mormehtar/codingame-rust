@@ -1,8 +1,9 @@
+use std;
 use board::Board;
 use local_io::ReadBuffer;
 
 pub fn init_board(reader: &mut ReadBuffer) -> Board {
-    let (player_count, my_id, zone_count, link_count) = read_header(reader);
+    let [player_count, my_id, zone_count, link_count] = read_header(reader);
     let mut board = Board::new(zone_count, player_count, my_id);
     fill_cells(reader, &mut board, zone_count);
     fill_links(reader, &mut board, link_count);
@@ -10,13 +11,16 @@ pub fn init_board(reader: &mut ReadBuffer) -> Board {
     return board;
 }
 
-fn read_header(reader: &mut ReadBuffer) -> (usize, i32, usize, usize) {
-    let first_line = reader.read_line();
-    let player_count = first_line[0].parse().unwrap(); // the amount of players (2 to 4)
-    let my_id = first_line[1].parse().unwrap(); // my player ID (0, 1, 2 or 3)
-    let zone_count = first_line[2].parse().unwrap(); // the amount of zones on the map
-    let link_count = first_line[3].parse().unwrap(); // the amount of links between all zones
-    (player_count, my_id, zone_count, link_count)
+fn read_header(reader: &mut ReadBuffer) -> [usize; 4] {
+    let line = reader.read_line();
+    let mut iterator = line.iter().take(4)
+        .map(|element| element.parse().unwrap());
+    [
+        iterator.next().unwrap(),
+        iterator.next().unwrap(),
+        iterator.next().unwrap(),
+        iterator.next().unwrap(),
+    ]
 }
 
 fn fill_cells(reader: &mut ReadBuffer, board: &mut Board, n_cells: usize) {
@@ -46,11 +50,13 @@ pub fn get_turn(reader: &mut ReadBuffer, board: &mut Board) {
         let data = reader.read_line();
         let zid = data[0].parse().unwrap();
         let owner_id = data[1].parse().unwrap();
-        let pods = [
-            data[2].parse().unwrap(),
-            data[3].parse().unwrap(),
-            data[4].parse().unwrap(),
-            data[5].parse().unwrap(),
+        let mut iterator = data.iter().skip(2).take(4)
+            .map(|element| element.parse().unwrap());
+        let pods: [usize; 4] = [
+            iterator.next().unwrap(),
+            iterator.next().unwrap(),
+            iterator.next().unwrap(),
+            iterator.next().unwrap(),
         ];
         board.set_cell(zid, owner_id, pods);
     }
@@ -62,6 +68,7 @@ mod tests {
     use super::*;
     use std::io::Cursor;
     use board::player::Player;
+    use board::cell::Owner;
 
     #[test]
     fn it_parses_input_correctly() {
@@ -74,7 +81,7 @@ mod tests {
 1 2";
         let mut buffer = ReadBuffer::new(Box::new(Cursor::new(TEST_INPUT)));
         let board = init_board(&mut buffer);
-        assert_eq!(*board.get_owner(), 0 as i32);
+        assert_eq!(*board.get_owner(), 0);
         assert_eq!(*board.get_player(0), Player::new(0));
         assert_eq!(*board.get_player(1), Player::new(1));
         let cell = board.get_cell(0);
@@ -102,10 +109,10 @@ mod tests {
         get_turn(&mut buffer, &mut board);
         assert_eq!(*board.get_owner_platinum(), 10);
         let cell = board.get_cell(0);
-        assert_eq!(*cell.get_owner(), 0);
+        assert_eq!(*cell.get_owner(), Owner::Owned(0));
         assert_eq!(*cell.get_pods(), [1, 0, 0, 0]);
         let cell = board.get_cell(1);
-        assert_eq!(*cell.get_owner(), -1);
+        assert_eq!(*cell.get_owner(), Owner::UnOwned);
         assert_eq!(*cell.get_pods(), [0, 0, 0, 0]);
     }
 }
