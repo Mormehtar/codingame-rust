@@ -1,5 +1,6 @@
 use std;
 use board::Board;
+use strategy::Strategy;
 use local_io::ReadBuffer;
 
 pub fn init_board(reader: &mut ReadBuffer) -> Board {
@@ -59,6 +60,22 @@ pub fn get_turn(reader: &mut ReadBuffer, board: &mut Board) {
             iterator.next().unwrap(),
         ];
         board.set_cell(zid, owner_id, pods);
+    }
+}
+
+pub fn main<StrategyImplementation: Strategy, WriteBuffer: std::io::Write>(
+    mut reader: ReadBuffer, mut write: WriteBuffer
+) {
+    let board = init_board(&mut reader);
+    let mut strategy = StrategyImplementation::new(board);
+    strategy.build_turn();
+    write.write(strategy.collect_commands().as_bytes());
+    write.flush();
+    loop {
+        get_turn(&mut reader, strategy.get_board());
+        strategy.finish_turn_update();
+        strategy.build_turn();
+        write.write(strategy.collect_commands().as_bytes());
     }
 }
 
