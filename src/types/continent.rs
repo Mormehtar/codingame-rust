@@ -72,14 +72,16 @@ mod tests {
     #[test]
     fn it_should_correctly_parse_board_on_continents() {
         let mut board = Board::new(10, 1, 0);
-        (0..10).for_each(|i| board.add_cell(Cell::new(i, 0)));
+        (0..10).for_each(|i| board.add_cell(Cell::new(i, i)));
         [[0, 1], [0, 2], [0, 3], [2, 3], [2, 4], [2, 5], [5, 6], [7, 8], [7, 9]].iter()
             .for_each(|data| board.link_cells(data[0], data[1]));
         let continents = Continent::build_continents(&board);
         assert_eq!(continents.len(), 2);
         assert_eq!(continents[0].cells.len(), 7);
+        assert_eq!(continents[0].platinum, 1 + 2 + 3 + 4 + 5 + 6);
         assert_eq!(continents[1].cells.len(), 3);
         assert_eq!(continents[1].cells, vec![7, 8, 9]);
+        assert_eq!(continents[1].platinum, 7 + 8 + 9);
     }
 
     #[test]
