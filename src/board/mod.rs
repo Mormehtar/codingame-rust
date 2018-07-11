@@ -1,11 +1,9 @@
-mod continent;
 // TODO For tests. Cleanup.
 pub mod player;
 pub mod cell;
 
 use board::cell::{Cell, Owner, Pods};
 use board::player::Player;
-use board::continent::Continent;
 
 const START_PLATINUM: usize = 200;
 
@@ -15,7 +13,6 @@ pub struct Board {
     players: Vec<Player>,
     owner: usize,
     owner_platinum: usize,
-    continents: Vec<Continent>,
 }
 
 impl Board {
@@ -32,7 +29,6 @@ impl Board {
             cells: Vec::with_capacity(size),
             players,
             owner_platinum: START_PLATINUM,
-            continents: Vec::new(),
         }
     }
 
@@ -75,13 +71,6 @@ impl Board {
 
     pub fn finish_init(&mut self) {
         self.cells.iter_mut().for_each(|cell| cell.finalize());
-        self.continents = Continent::build_continents(self);
-    }
-
-    pub fn finish_turn_update(&mut self) {
-//        for continent in self.continents.iter_mut() {
-//            continent.collect_stats(self);
-//        }
     }
 }
 
@@ -151,6 +140,5 @@ mod tests {
         assert_eq!(map.get_cell(1).get_links().capacity(), 2);
         assert_eq!(*map.get_cell(1).get_links(), vec![0, 2]);
         assert_eq!(map.get_cell(2).get_links().capacity(), 1);
-        assert_eq!(map.continents.len(), 1);
     }
 }

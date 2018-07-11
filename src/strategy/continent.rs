@@ -78,6 +78,14 @@ impl Continent {
         }
         continents
     }
+
+    pub fn get_owned_cells(&self) -> &[usize; 4] {
+        &self.owned_cells
+    }
+
+    pub fn get_pods(&self) -> &[usize; 4] {
+        &self.pods
+    }
 }
 
 #[cfg(test)]

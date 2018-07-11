@@ -60,7 +60,6 @@ pub fn get_turn(reader: &mut ReadBuffer, board: &mut Board) {
         ];
         board.set_cell(zid, owner_id, pods);
     }
-    board.finish_turn_update();
 }
 
 #[cfg(test)]
