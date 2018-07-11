@@ -1,7 +1,11 @@
 use types::board::Board;
 
-struct Continent {
+struct Continent<'a> {
+    board: &'a Board,
     cells: Vec<usize>,
+    platinum: usize,
+    pods: [usize; 4],
+    owned_cells: [usize; 4],
 }
 
 fn set_continent_mark(
@@ -19,15 +23,22 @@ fn set_continent_mark(
     }
 }
 
-impl Continent {
+impl <'a>Continent<'a> {
 
     fn finalize(&mut self) {
         self.cells.sort_unstable();
+        for i in &self.cells {
+            self.platinum += self.board.get_cell(*i).platinum;
+        }
     }
 
-    fn new() -> Continent {
+    fn new(board: &Board) -> Continent {
         Continent {
+            board,
             cells: Vec::new(),
+            platinum: 0,
+            pods: [0, 0, 0, 0],
+            owned_cells: [0, 0, 0, 0],
         }
     }
 
@@ -42,7 +53,7 @@ impl Continent {
             }
         }
         let mut continents: Vec<Continent> = (0..continent_number)
-            .map(|_| Continent::new()).collect();
+            .map(|_| Continent::new(board)).collect();
         for i in 0..temp.len() {
             continents[temp[i] - 1].cells.push(i);
         }
@@ -69,5 +80,20 @@ mod tests {
         assert_eq!(continents[0].cells.len(), 7);
         assert_eq!(continents[1].cells.len(), 3);
         assert_eq!(continents[1].cells, vec![7, 8, 9]);
+    }
+
+    #[test]
+    fn it_should_collect_platinum_in_finalize() {
+        let mut board = Board::new(3, 1, 0);
+        board.add_cell(Cell::new(0, 0));
+        board.add_cell(Cell::new(1, 5));
+        board.add_cell(Cell::new(2, 1));
+        let mut continent = Continent::new(&board);
+        continent.cells.push(2);
+        continent.cells.push(0);
+        continent.cells.push(1);
+        continent.finalize();
+        assert_eq!(continent.cells, vec![0, 1, 2]);
+        assert_eq!(continent.platinum, 6);
     }
 }
