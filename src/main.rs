@@ -9,7 +9,7 @@ fn main() {
     let stdin = io::stdin();
     let mut buffer = Box::new(stdin.lock());
     let mut reader = ReadBuffer::new(buffer);
-    let mut stdout = io::stdout();
+    let stdout = io::stdout();
 
-    utils::main::<BaseStrategy, io::StdoutLock>(reader, stdout.lock());
+    utils::main::<BaseStrategy, io::StdoutLock>(reader, &mut stdout.lock());
 }

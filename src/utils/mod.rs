@@ -64,7 +64,7 @@ pub fn get_turn(reader: &mut ReadBuffer, board: &mut Board) {
 }
 
 pub fn main<StrategyImplementation: Strategy, WriteBuffer: std::io::Write>(
-    mut reader: ReadBuffer, mut write: WriteBuffer
+    mut reader: ReadBuffer, write: &mut WriteBuffer
 ) {
     let board = init_board(&mut reader);
     let mut strategy = StrategyImplementation::new(board);
