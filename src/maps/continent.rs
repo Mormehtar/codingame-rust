@@ -7,6 +7,8 @@ pub struct Continent {
     platinum: usize,
     pods: [usize; 4],
     owned_cells: [usize; 4],
+    free_cells: usize,
+    is_active: bool,
 }
 
 fn set_continent_mark(
@@ -36,6 +38,7 @@ impl Continent {
     pub fn collect_stats(&mut self, board: &Board) {
         self.pods = [0, 0, 0, 0];
         self.owned_cells = [0, 0, 0, 0];
+        self.free_cells = 0;
         for i in &self.cells {
             let cell = board.get_cell(*i);
             let pods = cell.get_pods();
@@ -44,9 +47,19 @@ impl Continent {
             }
             match cell.get_owner() {
                 Owner::Owned(id) => self.owned_cells[*id] += 1,
-                _ => (),
+                &Owner::UnOwned => self.free_cells += 1,
             };
         }
+        self.check_if_active(board.get_owner());
+    }
+
+    fn check_if_active(&mut self, owner_id: &usize) {
+        self.is_active = (
+            self.free_cells > 0 ||
+            self.pods[*owner_id] > 0 ||
+            self.owned_cells[*owner_id] > 0
+        ) &&
+            self.owned_cells[*owner_id] != self.cells.len();
     }
 
     pub fn new() -> Continent {
@@ -55,6 +68,8 @@ impl Continent {
             platinum: 0,
             pods: [0, 0, 0, 0],
             owned_cells: [0, 0, 0, 0],
+            free_cells: 0,
+            is_active: true,
         }
     }
 
@@ -85,6 +100,10 @@ impl Continent {
 
     pub fn get_pods(&self) -> &[usize; 4] {
         &self.pods
+    }
+
+    pub fn is_active(&self) -> bool {
+        self.is_active.clone()
     }
 }
 
@@ -142,5 +161,44 @@ mod tests {
         continent.collect_stats(&board);
         assert_eq!(continent.owned_cells, [1, 1, 0, 0]);
         assert_eq!(continent.pods, [7, 5, 0, 0]);
+        assert_eq!(continent.is_active, true);
+    }
+
+    #[test]
+    fn it_should_be_inactive_if_no_owned_or_free_cells() {
+        let mut continent = Continent::new();
+        continent.cells = vec![0, 1, 2];
+        continent.owned_cells = [0, 3, 0, 0];
+        continent.check_if_active(&0);
+        assert_eq!(continent.is_active, false);
+    }
+
+    #[test]
+    fn it_should_be_active_if_any_free_space_exists() {
+        let mut continent = Continent::new();
+        continent.cells = vec![0, 1, 2];
+        continent.owned_cells = [0, 2, 0, 0];
+        continent.free_cells = 1;
+        continent.check_if_active(&0);
+        assert_eq!(continent.is_active, true);
+    }
+
+    #[test]
+    fn it_should_be_active_if_pods_exist() {
+        let mut continent = Continent::new();
+        continent.cells = vec![0, 1, 2];
+        continent.pods = [4, 3, 0, 0];
+        continent.owned_cells = [0, 3, 0, 0];
+        continent.check_if_active(&0);
+        assert_eq!(continent.is_active, true);
+    }
+
+    #[test]
+    fn it_should_be_inactive_if_continent_is_mine() {
+        let mut continent = Continent::new();
+        continent.cells = vec![0, 1, 2];
+        continent.owned_cells = [3, 0, 0, 0];
+        continent.check_if_active(&0);
+        assert_eq!(continent.is_active, false);
     }
 }

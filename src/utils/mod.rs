@@ -68,9 +68,6 @@ pub fn main<StrategyImplementation: Strategy, WriteBuffer: std::io::Write>(
 ) {
     let board = init_board(&mut reader);
     let mut strategy = StrategyImplementation::new(board);
-    strategy.build_turn();
-    write.write(strategy.collect_commands().as_bytes());
-    write.flush();
     loop {
         get_turn(&mut reader, strategy.get_board());
         strategy.finish_turn_update();
