@@ -46,20 +46,20 @@ impl Continent {
                 self.pods[id] += pods[id];
             }
             match cell.get_owner() {
-                Owner::Owned(id) => self.owned_cells[*id] += 1,
-                &Owner::UnOwned => self.free_cells += 1,
+                Owner::Owned(id) => self.owned_cells[id] += 1,
+                Owner::UnOwned => self.free_cells += 1,
             };
         }
         self.check_if_active(board.get_owner());
     }
 
-    fn check_if_active(&mut self, owner_id: &usize) {
+    fn check_if_active(&mut self, owner_id: usize) {
         self.is_active = (
             self.free_cells > 0 ||
-            self.pods[*owner_id] > 0 ||
-            self.owned_cells[*owner_id] > 0
+            self.pods[owner_id] > 0 ||
+            self.owned_cells[owner_id] > 0
         ) &&
-            self.owned_cells[*owner_id] != self.cells.len();
+            self.owned_cells[owner_id] != self.cells.len();
     }
 
     pub fn new() -> Continent {
@@ -169,7 +169,7 @@ mod tests {
         let mut continent = Continent::new();
         continent.cells = vec![0, 1, 2];
         continent.owned_cells = [0, 3, 0, 0];
-        continent.check_if_active(&0);
+        continent.check_if_active(0);
         assert_eq!(continent.is_active, false);
     }
 
@@ -179,7 +179,7 @@ mod tests {
         continent.cells = vec![0, 1, 2];
         continent.owned_cells = [0, 2, 0, 0];
         continent.free_cells = 1;
-        continent.check_if_active(&0);
+        continent.check_if_active(0);
         assert_eq!(continent.is_active, true);
     }
 
@@ -189,7 +189,7 @@ mod tests {
         continent.cells = vec![0, 1, 2];
         continent.pods = [4, 3, 0, 0];
         continent.owned_cells = [0, 3, 0, 0];
-        continent.check_if_active(&0);
+        continent.check_if_active(0);
         assert_eq!(continent.is_active, true);
     }
 
@@ -198,7 +198,7 @@ mod tests {
         let mut continent = Continent::new();
         continent.cells = vec![0, 1, 2];
         continent.owned_cells = [3, 0, 0, 0];
-        continent.check_if_active(&0);
+        continent.check_if_active(0);
         assert_eq!(continent.is_active, false);
     }
 }

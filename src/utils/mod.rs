@@ -94,7 +94,7 @@ mod tests {
 1 2";
         let mut buffer = ReadBuffer::new(Box::new(Cursor::new(TEST_INPUT)));
         let board = init_board(&mut buffer);
-        assert_eq!(*board.get_owner(), 0);
+        assert_eq!(board.get_owner(), 0);
         assert_eq!(*board.get_player(0), Player::new(0));
         assert_eq!(*board.get_player(1), Player::new(1));
         let cell = board.get_cell(0);
@@ -120,12 +120,12 @@ mod tests {
         let mut buffer = ReadBuffer::new(Box::new(Cursor::new(TEST_INPUT)));
         let mut board = init_board(&mut buffer);
         get_turn(&mut buffer, &mut board);
-        assert_eq!(*board.get_owner_platinum(), 10);
+        assert_eq!(board.get_owner_platinum(), 10);
         let cell = board.get_cell(0);
-        assert_eq!(*cell.get_owner(), Owner::Owned(0));
+        assert_eq!(cell.get_owner(), Owner::Owned(0));
         assert_eq!(*cell.get_pods(), [1, 0, 0, 0]);
         let cell = board.get_cell(1);
-        assert_eq!(*cell.get_owner(), Owner::UnOwned);
+        assert_eq!(cell.get_owner(), Owner::UnOwned);
         assert_eq!(*cell.get_pods(), [0, 0, 0, 0]);
     }
 }

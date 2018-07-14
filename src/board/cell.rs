@@ -7,6 +7,7 @@ const MAX_PLAYERS: usize = 4;
 pub type Pods = [usize; MAX_PLAYERS];
 
 #[derive(Debug)]
+#[derive(Clone)]
 pub enum Owner {
     Owned(usize),
     UnOwned,
@@ -62,8 +63,8 @@ impl Cell {
         &self.pods
     }
 
-    pub fn get_owner(&self) -> &Owner {
-        &self.owner
+    pub fn get_owner(&self) -> Owner {
+        self.owner.clone()
     }
 
     pub fn finalize(&mut self) {
@@ -112,14 +113,14 @@ mod tests {
     fn it_returns_owner_when_neutral() {
         let mut cell = Cell::new(1, 0);
         cell.update(NEUTRAL_ID, [1, 0, 0, 0]);
-        assert_eq!(*cell.get_owner(), Owner::UnOwned);
+        assert_eq!(cell.get_owner(), Owner::UnOwned);
     }
 
     #[test]
     fn it_returns_owner() {
         let mut cell = Cell::new(1, 0);
         cell.update(1, [1, 0, 0, 0]);
-        assert_eq!(*cell.get_owner(), Owner::Owned(1));
+        assert_eq!(cell.get_owner(), Owner::Owned(1));
     }
 
     #[test]

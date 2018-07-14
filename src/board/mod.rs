@@ -57,12 +57,12 @@ impl Board {
         self.owner_platinum = platinum;
     }
 
-    pub fn get_owner_platinum(&self) -> &usize {
-        &self.owner_platinum
+    pub fn get_owner_platinum(&self) -> usize {
+        self.owner_platinum.clone()
     }
 
-    pub fn get_owner(&self) -> &usize {
-        &self.owner
+    pub fn get_owner(&self) -> usize {
+        self.owner.clone()
     }
 
     pub fn get_player(&self, id: i32) -> &Player {
@@ -115,7 +115,7 @@ mod tests {
         map.add_cell(0, 0);
         map.add_cell(1, 0);
         map.set_cell(0, 1, [1, 1, 0, 0]);
-        assert_eq!(*map.get_cell(0).get_owner(), Owner::Owned(1));
+        assert_eq!(map.get_cell(0).get_owner(), Owner::Owned(1));
         assert_eq!(*map.get_cell(0).get_pods(), [1, 1, 0, 0]);
     }
 
@@ -123,7 +123,7 @@ mod tests {
     fn it_manipulates_owner_platinum() {
         let mut map = Board::new(2, 2, 0);
         map.set_owner_platinum(5);
-        assert_eq!(*map.get_owner_platinum(), 5);
+        assert_eq!(map.get_owner_platinum(), 5);
     }
 
     #[test]
