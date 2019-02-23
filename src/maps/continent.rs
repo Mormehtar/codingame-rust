@@ -105,6 +105,10 @@ impl Continent {
     pub fn is_active(&self) -> bool {
         self.is_active.clone()
     }
+
+    pub fn get_cells(&self) -> &Vec<usize> {
+        &self.cells
+    }
 }
 
 #[cfg(test)]

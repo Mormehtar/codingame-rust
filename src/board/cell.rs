@@ -26,7 +26,7 @@ impl PartialEq for Owner {
 #[derive(Debug)]
 pub struct Cell {
     pub id: usize,
-    pub platinum: usize,
+    platinum: usize,
     pub links: Vec<usize>,
     owner: Owner,
     pods: Pods,
@@ -70,6 +70,14 @@ impl Cell {
     pub fn finalize(&mut self) {
         self.links.shrink_to_fit();
         self.links.sort_unstable();
+    }
+
+    pub fn get_platinum(&self) -> usize {
+        self.platinum.clone()
+    }
+
+    pub fn get_id(&self) -> usize {
+        self.id.clone()
     }
 }
 

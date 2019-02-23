@@ -3,7 +3,7 @@ use maps::continent::Continent;
 use commander::Commander;
 use commander::BaseCommander;
 
-use strategy::Strategy;
+use strategy::prelude::*;
 
 pub struct BaseStrategy {
     board: Board,
